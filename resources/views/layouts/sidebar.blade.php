@@ -19,7 +19,7 @@
         <div class="flex flex-col h-[80svh]">
             <ul class="space-y-2 font-medium flex-grow">
                 <li>
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-nav-link :href="route('checkin')" :active="request()->routeIs('checkin')">
                         {{-- <a href="#" class="flex items-center p-2  rounded-lg text-white hover:bg-gray-700 group"> --}}
                         <svg class="w-5 h-5 transition duration-75 text-gray-400 group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
@@ -31,7 +31,7 @@
                         </svg>
                         {{-- <span class="ms-3">Dashboard</span>
                 </a> --}}
-                        <span class="ms-3">Dashboard</span>
+                        <span class="ms-3">Check-In</span>
                     </x-nav-link>
                 </li>
                 @auth
@@ -75,15 +75,7 @@
             <form class="p-4" method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" onclick="event.preventDefault(); this.closest('form').submit();"
-                    class="flex items-center w-full bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium text-sm px-4 py-2 text-left p-2  rounded-lg text-white hover:bg-red-700">
-                    <!-- Logout icon (Heroicons) -->
-                    <svg class="shrink-0 w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5"
-                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3H6.75A2.25 2.25 0 004.5 5.25v13.5A2.25 2.25 0 006.75 21h6.75a2.25 2.25 0 002.25-2.25V15m3-3H9m0 0l3-3m-3 3l3 3">
-                        </path>
-                    </svg>
-
+                    class="flex items-center w-full bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium text-sm px-4 py-2 text-left p-2  rounded-lg text-white text-center hover:bg-red-700">
                     <span class="flex-1">Sign Out</span>
                 </button>
             </form>

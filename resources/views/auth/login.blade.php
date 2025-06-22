@@ -22,9 +22,14 @@
                         </div>
                         <div>
                             <label for="password" class="block mb-2 text-sm font-medium text-white">Password</label>
-                            <input type="password" name="password" id="password" placeholder="••••••••"
-                                class="border rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                                required="">
+                            <div class="relative">
+                                <input id="password" type="password" name="password"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <button type="button" id="togglePassword1" tabindex="-1"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5">
+                                    <i class="fas fa-eye dark:text-white" id="eyeIcon1"></i>
+                                </button>
+                            </div>
                         </div>
                         {{-- <div class="flex items-center justify-between">
                             <div class="flex items-start">
