@@ -21,7 +21,96 @@
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+    <!-- JS -->
+    <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
     <script>
+        let userLat = null;
+        let userLng = null;
+
+        const map = L.map('map').setView([-6.2, 106.8], 14);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Ambil lokasi user
+        navigator.geolocation.getCurrentPosition(pos => {
+            userLat = pos.coords.latitude;
+            userLng = pos.coords.longitude;
+
+            // Tambahkan marker lokasi user
+            const userIcon = L.divIcon({
+                className: '',
+                html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-md"></div>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+
+            L.marker([userLat, userLng], {
+                    icon: userIcon
+                }).addTo(map)
+                .openPopup();
+
+            map.flyTo([userLat, userLng], 15);
+
+            L.control.locate({
+                position: 'topleft',
+                strings: {
+                    title: "click to focus on your current location"
+                },
+                flyTo: true,
+                keepCurrentZoomLevel: false
+            }).addTo(map);
+
+            // Fetch lokasi dari API dan kirim posisi user
+            fetch(`/api/attendance-locations?lat=${userLat}&lng=${userLng}`)
+                .then(res => res.json())
+                .then(res => {
+                    const lokasiList = res.data;
+                    const lokasiTerdekat = res.nearest;
+                    // console.log(lokasiTerdekat)
+                    // Render semua lokasi sebagai lingkaran
+                    lokasiList.forEach(loc => {
+                        L.circle([loc.latitude, loc.longitude], {
+                            color: 'red',
+                            fillColor: '#f03',
+                            fillOpacity: 0.3,
+                            radius: 100
+                        }).addTo(map).bindPopup(`📍 ${loc.location_name}`);
+                    });
+
+                    // Highlight lokasi terdekat
+                    if (lokasiTerdekat) {
+                        const nearestIcon = L.icon({
+                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // icon custom
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 32],
+                            popupAnchor: [0, -32],
+                        });
+
+                        L.marker([lokasiTerdekat.latitude, lokasiTerdekat.longitude], {
+                            icon: nearestIcon
+                        }).addTo(map).bindPopup(
+                            `✅ Lokasi Terdekat:<br><strong>${lokasiTerdekat.location_name}</strong><br>${lokasiTerdekat.distance?.toFixed(2) ?? '?'} km`
+                        );
+
+                        // Optional: fokus ke lokasi terdekat
+                        map.panTo([lokasiTerdekat.latitude, lokasiTerdekat.longitude]);
+                    }
+                })
+                .catch(err => {
+                    alert("Gagal ambil lokasi dari API: " + err.message);
+                });
+
+        }, err => {
+            alert("Gagal ambil lokasi kamu: " + err.message);
+        });
+    </script>
+
+
+
+    {{-- <script>
         const tujuanLat = -6.20938;
         const tujuanLng = 106.85132;
 
@@ -74,7 +163,7 @@
         } else {
             alert("Browser kamu tidak mendukung geolocation.");
         }
-    </script>
+    </script> --}}
     {{-- <div class="p-4 sm:ml-64">
         <div class="p-4 border-2 border-dashed rounded-lg border-gray-700"> --}}
     {{-- <div class="grid grid-cols-3 gap-4 mb-4">

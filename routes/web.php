@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AttendanceLocationApiController;
+use App\Http\Controllers\AttendanceLocationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +32,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
+Route::resource('attendance-location', AttendanceLocationController::class);
+Route::get('/api/attendance-locations', [AttendanceLocationApiController::class, 'index']);
 // });
 
 require __DIR__.'/auth.php';
