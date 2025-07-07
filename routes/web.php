@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLocationApiController;
 use App\Http\Controllers\AttendanceLocationController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,10 +32,28 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::resource('attendance-location', AttendanceLocationController::class);
+    Route::resource('holidays', HolidayController::class);
 });
 
-Route::resource('attendance-location', AttendanceLocationController::class);
 Route::get('/api/attendance-locations', [AttendanceLocationApiController::class, 'index']);
+// Butuh login aja
+Route::post('/api/attendance/checkin', [AttendanceController::class, 'checkIn'])
+    ->middleware('auth');
+
+Route::post('/api/attendance/checkout', [AttendanceController::class, 'checkOut'])
+    ->middleware('auth');
+
+// List absensi semua user → Hanya admin
+Route::get('/attendances', [AttendanceController::class, 'index'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('attendances.index');
+
+// Riwayat absen user tertentu → hanya admin atau user sendiri
+Route::get('/attendances/user/{userId}', [AttendanceController::class, 'userAttendance'])
+    ->middleware('auth')
+    ->name('attendances.user');
+
 // });
 
 require __DIR__.'/auth.php';

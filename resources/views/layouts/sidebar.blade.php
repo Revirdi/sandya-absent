@@ -59,6 +59,17 @@
                                 <span class="flex-1 ms-3 whitespace-nowrap">Office Location</span>
                             </x-nav-link>
                         </li>
+                        <li>
+                            <x-nav-link :href="route('holidays.index')" :active="request()->routeIs('holidays.*')">
+                                <svg class="shrink-0 w-5 h-5  transition duration-75 text-gray-400 group-hover:text-white"
+                                    aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                    viewBox="0 0 18 20">
+                                    <path
+                                        d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 9a1 1 0 0 1-2 0V7h2v2Zm0-5a2 2 0 1 1 4 0v1H7V4Zm6 5a1 1 0 1 1-2 0V7h2v2Z" />
+                                </svg>
+                                <span class="flex-1 ms-3 whitespace-nowrap">Holidays</span>
+                            </x-nav-link>
+                        </li>
                     @endif
                 @endauth
                 {{-- <li>
@@ -72,7 +83,7 @@
                         <span class="flex-1 ms-3 whitespace-nowrap">Office Location</span>
                     </a>
                 </li> --}}
-                <li>
+                {{-- <li>
                     <a href="#" class="flex items-center p-2  rounded-lg text-white hover:bg-gray-700 group">
                         <svg class="shrink-0 w-5 h-5  transition duration-75 text-gray-400 group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
@@ -81,12 +92,12 @@
                         </svg>
                         <span class="flex-1 ms-3 whitespace-nowrap">Sign In</span>
                     </a>
-                </li>
+                </li> --}}
             </ul>
             <form class="p-4" method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" onclick="event.preventDefault(); this.closest('form').submit();"
-                    class="flex items-center w-full bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium text-sm px-4 py-2 text-left p-2  rounded-lg text-white text-center hover:bg-red-700">
+                    class="flex items-center w-full bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 font-medium text-sm px-4 py-2 p-2  rounded-lg text-white text-center hover:bg-red-700">
                     <span class="flex-1">Sign Out</span>
                 </button>
             </form>

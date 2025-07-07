@@ -10,11 +10,11 @@
             class="inline-flex items-center justify-center text-white focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-blue-800">
             Buka di Google Maps
         </a> --}}
-        <button
+        <button id="checkin-btn"
             class="inline-flex items-center justify-center text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
             Check-In
         </button>
-        <button
+        <button id="checkout-btn"
             class="inline-flex items-center justify-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2.5">
             Check-Out
         </button>
@@ -34,12 +34,11 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Ambil lokasi user
-        navigator.geolocation.getCurrentPosition(pos => {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
             userLat = pos.coords.latitude;
             userLng = pos.coords.longitude;
 
-            // Tambahkan marker lokasi user
+            // Marker user
             const userIcon = L.divIcon({
                 className: '',
                 html: `<div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-md"></div>`,
@@ -48,65 +47,118 @@
             });
 
             L.marker([userLat, userLng], {
-                    icon: userIcon
-                }).addTo(map)
-                .openPopup();
-
+                icon: userIcon
+            }).addTo(map).openPopup();
             map.flyTo([userLat, userLng], 15);
 
             L.control.locate({
                 position: 'topleft',
                 strings: {
-                    title: "click to focus on your current location"
+                    title: "Click to focus on your current location"
                 },
                 flyTo: true,
                 keepCurrentZoomLevel: false
             }).addTo(map);
 
-            // Fetch lokasi dari API dan kirim posisi user
-            fetch(`/api/attendance-locations?lat=${userLat}&lng=${userLng}`)
-                .then(res => res.json())
-                .then(res => {
-                    const lokasiList = res.data;
-                    const lokasiTerdekat = res.nearest;
-                    // console.log(lokasiTerdekat)
-                    // Render semua lokasi sebagai lingkaran
-                    lokasiList.forEach(loc => {
-                        L.circle([loc.latitude, loc.longitude], {
-                            color: 'red',
-                            fillColor: '#f03',
-                            fillOpacity: 0.3,
-                            radius: 100
-                        }).addTo(map).bindPopup(`📍 ${loc.location_name}`);
-                    });
+            try {
+                // Ambil lokasi dari backend
+                const res = await fetch(`/api/attendance-locations?lat=${userLat}&lng=${userLng}`);
+                const json = await res.json();
 
-                    // Highlight lokasi terdekat
-                    if (lokasiTerdekat) {
-                        const nearestIcon = L.icon({
-                            iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // icon custom
-                            iconSize: [32, 32],
-                            iconAnchor: [16, 32],
-                            popupAnchor: [0, -32],
-                        });
+                const lokasiList = json.data;
+                const lokasiTerdekat = json.nearest;
 
-                        L.marker([lokasiTerdekat.latitude, lokasiTerdekat.longitude], {
-                            icon: nearestIcon
-                        }).addTo(map).bindPopup(
-                            `✅ Lokasi Terdekat:<br><strong>${lokasiTerdekat.location_name}</strong><br>${lokasiTerdekat.distance?.toFixed(2) ?? '?'} km`
-                        );
-
-                        // Optional: fokus ke lokasi terdekat
-                        map.panTo([lokasiTerdekat.latitude, lokasiTerdekat.longitude]);
-                    }
-                })
-                .catch(err => {
-                    alert("Gagal ambil lokasi dari API: " + err.message);
+                // Render semua lokasi
+                lokasiList.forEach(loc => {
+                    L.circle([loc.latitude, loc.longitude], {
+                        color: 'red',
+                        fillColor: '#f03',
+                        fillOpacity: 0.3,
+                        radius: 100
+                    }).addTo(map).bindPopup(`📍 ${loc.location_name}`);
                 });
 
+                // Lokasi terdekat
+                if (lokasiTerdekat) {
+                    const nearestIcon = L.icon({
+                        iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 32],
+                        popupAnchor: [0, -32],
+                    });
+
+                    L.marker([lokasiTerdekat.latitude, lokasiTerdekat.longitude], {
+                        icon: nearestIcon
+                    }).addTo(map).bindPopup(
+                        `✅ Lokasi Terdekat:<br><strong>${lokasiTerdekat.location_name}</strong><br>${lokasiTerdekat.distance?.toFixed(2) ?? '?'} km`
+                    );
+                    map.panTo([lokasiTerdekat.latitude, lokasiTerdekat.longitude]);
+                    // Tambah event tombol
+                    document.getElementById("checkin-btn")?.addEventListener("click", async () => {
+                        // const distance = lokasiTerdekat.distance;
+                        // if (distance > 0.1) {
+                        //     alert(
+                        //         `❌ Gagal check-in: Jarak kamu terlalu jauh (${(distance).toFixed(2)} km) dari office terdekat (${lokasiTerdekat.location_name})`
+                        //     );
+                        //     return;
+                        // }
+                        const result = await fetch('/api/attendance/checkin', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                location_id: lokasiTerdekat.id
+                            })
+                        });
+
+                        const res = await result.json();
+                        if (res.success) {
+                            alert("✅ Check-in berhasil!");
+                        } else {
+                            alert("⚠️ Gagal check-in: " + res.message);
+                        }
+                    });
+
+                    document.getElementById("checkout-btn")?.addEventListener("click", async () => {
+                        const distance = lokasiTerdekat.distance;
+                        if (distance > 0.1) {
+                            alert(
+                                `❌ Gagal check-out: Jarak kamu terlalu jauh (${(distance).toFixed(2)} km) dari office terdekat (${lokasiTerdekat.location_name})`
+                            );
+                            return;
+                        }
+                        const result = await fetch('/api/attendance/checkout', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').content
+                            }
+                        });
+
+                        const res = await result.json();
+                        if (res.success) {
+                            alert("✅ Check-out berhasil!");
+                        } else {
+                            alert("⚠️ Gagal check-out: " + res.message);
+                        }
+                    });
+                }
+
+            } catch (err) {
+                alert("❌ Gagal ambil lokasi dari API: " + err.message);
+            }
+
         }, err => {
-            alert("Gagal ambil lokasi kamu: " + err.message);
+            alert("❌ Gagal ambil lokasi kamu: " + err.message);
         });
     </script>
+
 
 
 
