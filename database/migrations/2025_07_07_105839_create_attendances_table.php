@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('attendance_date');
             $table->time('check_in_time')->nullable();
             $table->time('check_out_time')->nullable();
-            $table->enum('status', ['hadir', 'tidak hadir'])->default('tidak hadir');
+            $table->enum('status', ['present', 'absent'])->default('present');
             $table->text('remarks')->nullable();
             $table->timestamps();
         });

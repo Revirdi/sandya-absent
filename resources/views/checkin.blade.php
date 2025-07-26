@@ -10,14 +10,17 @@
             class="inline-flex items-center justify-center text-white focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-blue-800">
             Buka di Google Maps
         </a> --}}
-        <button id="checkin-btn"
-            class="inline-flex items-center justify-center text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
-            Check-In
-        </button>
-        <button id="checkout-btn"
-            class="inline-flex items-center justify-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2.5">
-            Check-Out
-        </button>
+        @if (!$attendance)
+            <button id="checkin-btn"
+                class="inline-flex items-center justify-center text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                Check-In
+            </button>
+        @else
+            <button id="checkout-btn" {{ $attendance->check_out_time ? 'disabled' : '' }}
+                class="inline-flex items-center justify-center text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2.5 disabled:bg-gray-500">
+                Check-Out
+            </button>
+        @endif
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -95,13 +98,16 @@
                     map.panTo([lokasiTerdekat.latitude, lokasiTerdekat.longitude]);
                     // Tambah event tombol
                     document.getElementById("checkin-btn")?.addEventListener("click", async () => {
-                        // const distance = lokasiTerdekat.distance;
-                        // if (distance > 0.1) {
-                        //     alert(
-                        //         `❌ Gagal check-in: Jarak kamu terlalu jauh (${(distance).toFixed(2)} km) dari office terdekat (${lokasiTerdekat.location_name})`
-                        //     );
-                        //     return;
-                        // }
+                        const distance = lokasiTerdekat.distance;
+                        if (distance > 0.1) {
+                            Swal.fire({
+                                title: 'Check-in failed',
+                                text: `You're too far away (${(distance).toFixed(2)} km) from the nearest office (${lokasiTerdekat.location_name}).`,
+                                icon: 'error',
+                                confirmButtonText: 'Ulangi'
+                            })
+                            return;
+                        }
                         const result = await fetch('/api/attendance/checkin', {
                             method: 'POST',
                             headers: {
@@ -117,18 +123,30 @@
 
                         const res = await result.json();
                         if (res.success) {
-                            alert("✅ Check-in berhasil!");
+                            Swal.fire({
+                                title: "Success",
+                                text: "Check-in success",
+                                icon: "success"
+                            });
                         } else {
-                            alert("⚠️ Gagal check-in: " + res.message);
+                            Swal.fire({
+                                title: 'Check-in failed',
+                                text: `Gagal check-in: ${res.message}`,
+                                icon: 'error',
+                                confirmButtonText: 'Retry'
+                            })
                         }
                     });
 
                     document.getElementById("checkout-btn")?.addEventListener("click", async () => {
                         const distance = lokasiTerdekat.distance;
                         if (distance > 0.1) {
-                            alert(
-                                `❌ Gagal check-out: Jarak kamu terlalu jauh (${(distance).toFixed(2)} km) dari office terdekat (${lokasiTerdekat.location_name})`
-                            );
+                            Swal.fire({
+                                title: 'Check-out failed',
+                                text: `You're too far away (${(distance).toFixed(2)} km) from the nearest office (${lokasiTerdekat.location_name}).`,
+                                icon: 'error',
+                                confirmButtonText: 'Retry'
+                            })
                             return;
                         }
                         const result = await fetch('/api/attendance/checkout', {
@@ -143,19 +161,28 @@
 
                         const res = await result.json();
                         if (res.success) {
-                            alert("✅ Check-out berhasil!");
+                            Swal.fire({
+                                title: "Success",
+                                text: "Check-out success",
+                                icon: "success"
+                            });
                         } else {
-                            alert("⚠️ Gagal check-out: " + res.message);
+                            Swal.fire({
+                                title: 'Check-in failed',
+                                text: `Gagal check-in: ${res.message}`,
+                                icon: 'error',
+                                confirmButtonText: 'Retry'
+                            })
                         }
                     });
                 }
 
             } catch (err) {
-                alert("❌ Gagal ambil lokasi dari API: " + err.message);
+                console.error(err.message)
             }
 
         }, err => {
-            alert("❌ Gagal ambil lokasi kamu: " + err.message);
+            console.error(err.message)
         });
     </script>
 

@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/checkin');
 
-Route::get('/checkin', function () {
-    return view('checkin');
-})->middleware('auth')->name('checkin');
+Route::get('/checkin', [AttendanceController::class, 'showCheckin'])
+    ->middleware('auth')
+    ->name('checkin');
 
 // Route::get('/users', function () {
 //     return view('users');
@@ -50,9 +50,23 @@ Route::get('/attendances', [AttendanceController::class, 'index'])
     ->name('attendances.index');
 
 // Riwayat absen user tertentu → hanya admin atau user sendiri
-Route::get('/attendances/user/{userId}', [AttendanceController::class, 'userAttendance'])
+Route::get('/attendances/user', [AttendanceController::class, 'userAttendance'])
     ->middleware('auth')
     ->name('attendances.user');
+
+Route::get('/attendances/edit/{userId}', [AttendanceController::class, 'edit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('attendances.edit');
+
+Route::delete('/attendances', [AttendanceController::class, 'destroy'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('attendances.destroy');
+
+Route::put('/attendances/{attendance}', [AttendanceController::class, 'update'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('attendances.update');
+
+Route::get('/attendance/pdf', [AttendanceController::class, 'exportPdf'])->name('attendance.pdf');
 
 // });
 
