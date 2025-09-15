@@ -17,14 +17,9 @@
     <!-- Toastify JS -->
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <style>
-        /* #map {
-            height: 70vh;
-            height: 70svh;
-            height: 70dvh;
-            width: 100%;
-        } */
-
         #gmap-link {
             display: none;
             text-align: center;

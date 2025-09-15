@@ -77,7 +77,7 @@
                         color: 'red',
                         fillColor: '#f03',
                         fillOpacity: 0.3,
-                        radius: 100
+                        radius: 40000 // jarak meter
                     }).addTo(map).bindPopup(`📍 ${loc.location_name}`);
                 });
 
@@ -99,12 +99,12 @@
                     // Tambah event tombol
                     document.getElementById("checkin-btn")?.addEventListener("click", async () => {
                         const distance = lokasiTerdekat.distance;
-                        if (distance > 0.1) {
+                        if (distance > 40000) { //jarak km
                             Swal.fire({
                                 title: 'Check-in failed',
                                 text: `You're too far away (${(distance).toFixed(2)} km) from the nearest office (${lokasiTerdekat.location_name}).`,
                                 icon: 'error',
-                                confirmButtonText: 'Ulangi'
+                                confirmButtonText: 'Retry'
                             })
                             return;
                         }
@@ -128,6 +128,7 @@
                                 text: "Check-in success",
                                 icon: "success"
                             });
+                            window.location.reload
                         } else {
                             Swal.fire({
                                 title: 'Check-in failed',
@@ -140,7 +141,7 @@
 
                     document.getElementById("checkout-btn")?.addEventListener("click", async () => {
                         const distance = lokasiTerdekat.distance;
-                        if (distance > 0.1) {
+                        if (distance > 40) {
                             Swal.fire({
                                 title: 'Check-out failed',
                                 text: `You're too far away (${(distance).toFixed(2)} km) from the nearest office (${lokasiTerdekat.location_name}).`,

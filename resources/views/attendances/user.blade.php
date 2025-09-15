@@ -2,7 +2,9 @@
 
     <h1 class="text-2xl font-bold text-white mb-6">Data Attendances {{ auth()->user()->name }}</h1>
     <div class="flex justify-between mb-2">
-        <a href="{{ route('attendance.pdf') }}"
+        <input id="monthPicker" placeholder="Select Month" required />
+
+        <a href="#" id="downloadPdfBtn"
             class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
             Download PDF
         </a>
@@ -49,8 +51,15 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xs md:text-sm lg:text-md text-gray-300">
                             @if (isset($day['working_minutes']))
-                                {{ rtrim(rtrim(number_format($day['working_minutes'], 2, '.', ''), '0'), '.') }} minutes
+                                @php
+                                    $totalMinutes = floor($day['working_minutes']);
+                                    $hours = floor($totalMinutes / 60);
+                                    $minutes = $totalMinutes % 60;
+                                @endphp
+
+                                {{ $hours > 0 ? $hours . 'h ' : '' }}{{ $minutes }}m
                             @else
+                                -
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xs md:text-sm lg:text-md text-gray-300 ">
@@ -79,4 +88,59 @@
     <div class="flex justify-end">
         {{ $daysInMonth->onEachSide(2)->links('vendor.pagination.tailwind') }}
     </div>
+    {{-- JS FLATPICKR --}}
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const monthParam = urlParams.get("month");
+            const yearParam = urlParams.get("year");
+
+            // Format: YYYY-MM
+            let defaultValue;
+            if (monthParam && yearParam) {
+                defaultValue = `${yearParam}-${monthParam.padStart(2, '0')}`;
+            } else {
+                const now = new Date();
+                defaultValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            }
+
+            const monthPicker = document.getElementById("monthPicker");
+            monthPicker.value = defaultValue;
+            flatpickr("#monthPicker", {
+                plugins: [
+                    new monthSelectPlugin({
+                        shorthand: true,
+                        dateFormat: "Y-m", // format backend
+                        altFormat: "F Y", // format tampilan
+                        theme: "light"
+                    })
+                ],
+                onChange: function(selectedDates, dateStr) {
+                    if (dateStr) {
+                        const [year, month] = dateStr.split("-");
+                        const url = new URL(window.location.href);
+                        url.searchParams.set("month", month);
+                        url.searchParams.set("year", year);
+                        url.searchParams.set("page", 1);
+                        window.location.href = url.toString(); // Redirect langsung
+                    }
+                }
+            });
+            document.getElementById("downloadPdfBtn").addEventListener("click", function(e) {
+                e.preventDefault();
+
+                const dateStr = document.getElementById("monthPicker").value;
+                if (!dateStr) {
+                    alert("Please select a month first.");
+                    return;
+                }
+
+                const [year, month] = dateStr.split("-");
+                const url = `{{ route('attendance.pdf') }}?month=${month}&year=${year}`;
+                window.location.href = url;
+            });
+        });
+    </script>
 </x-app-layout>

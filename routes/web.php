@@ -37,6 +37,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 Route::get('/api/attendance-locations', [AttendanceLocationApiController::class, 'index']);
+Route::get('/attendance-locations/compare', [AttendanceLocationController::class, 'compareView'])
+    ->name('attendance.locations.compare.view');
+Route::get('/api/locations', [AttendanceLocationApiController::class, 'getLocations']);
+Route::get('/api/compare', [AttendanceLocationApiController::class, 'compare'])->name('compare');
 // Butuh login aja
 Route::post('/api/attendance/checkin', [AttendanceController::class, 'checkIn'])
     ->middleware('auth');
@@ -58,7 +62,7 @@ Route::get('/attendances/edit/{userId}', [AttendanceController::class, 'edit'])
     ->middleware(['auth', 'role:admin'])
     ->name('attendances.edit');
 
-Route::delete('/attendances', [AttendanceController::class, 'destroy'])
+Route::delete('/attendances/{id}', [AttendanceController::class, 'destroy'])
     ->middleware(['auth', 'role:admin'])
     ->name('attendances.destroy');
 
@@ -67,6 +71,13 @@ Route::put('/attendances/{attendance}', [AttendanceController::class, 'update'])
     ->name('attendances.update');
 
 Route::get('/attendance/pdf', [AttendanceController::class, 'exportPdf'])->name('attendance.pdf');
+
+Route::get('/attendances/create', [AttendanceController::class, 'create'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('attendances.create');
+Route::post('/attendances', [AttendanceController::class, 'store'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('attendances.store');
 
 // });
 

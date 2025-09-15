@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\AttendanceLocation;
 use App\Models\Holiday;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
@@ -36,7 +37,7 @@ class AttendanceController extends Controller
             [
                 'location_id' => $request->location_id ?? 1,
                 'check_in_time' => now()->format('H:i:s'),
-                'status' => 'hadir',
+                'status' => 'present',
             ]
         );
 
@@ -79,22 +80,33 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $attendances = Attendance::with(['user', 'location']) 
-            ->orderBy('attendance_date', 'desc')
-            ->paginate(10);
-        // dd($attendances);
+        $query = Attendance::with(['user', 'location'])
+            ->when($request->input('name'), function ($q) use ($request) {
+                $q->whereHas('user', function ($uq) use ($request) {
+                    $uq->where('name', 'like', '%' . $request->input('name') . '%');
+                });
+            })
+            ->orderBy('attendance_date', 'desc');
+
+        $attendances = $query->paginate(10)->withQueryString();
+
         return view('attendances.index', compact('attendances'));
     }
-
     public function userAttendance()
     {
         $userId = auth()->id();
-        $startDate = Carbon::now()->startOfMonth();
-        $endDate = Carbon::now()->endOfMonth();
 
-        // Ambil semua data attendances user bulan ini
+        // Ambil parameter bulan & tahun dari request atau default ke bulan & tahun sekarang
+        $month = request()->get('month', Carbon::now()->month);
+        $year = request()->get('year', Carbon::now()->year);
+
+        // Buat awal dan akhir bulan berdasarkan month & year
+        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+
+        // Ambil semua data attendances user untuk bulan yang dipilih
         $attendances = Attendance::where('user_id', $userId)
             ->whereBetween('attendance_date', [$startDate->toDateString(), $endDate->toDateString()])
             ->get()
@@ -146,16 +158,19 @@ class AttendanceController extends Controller
 
         $items = collect($daysInMonth);
         $pagedData = new LengthAwarePaginator(
-            $items->slice($offset, $perPage)->values(), // data yang ditampilkan
-            $items->count(),                            // total semua data
-            $perPage,                                   // per halaman
-            $page,                                      // halaman saat ini
-            ['path' => request()->url(), 'query' => request()->query()] // biar pagination link jalan
+            $items->slice($offset, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
         );
 
-        return view('attendances.user', ['daysInMonth' => $pagedData]);
+        return view('attendances.user', [
+            'daysInMonth' => $pagedData,
+            'selectedMonth' => $month,
+            'selectedYear' => $year,
+        ]);
     }
-
     public function edit($id)
     {
         $attendance = Attendance::with(['user', 'location'])->findOrFail($id);
@@ -186,11 +201,16 @@ class AttendanceController extends Controller
         return redirect()->route('attendances.index')->with('success', 'Attendance record deleted successfully.');
     }
 
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
         $userId = auth()->id();
-        $startDate = now()->startOfMonth();
-        $endDate = now()->endOfMonth();
+        $user = auth()->user();
+
+        $month = $request->input('month', now()->month); // default: bulan sekarang
+        $year = $request->input('year', now()->year);    // default: tahun sekarang
+
+        $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $endDate = $startDate->copy()->endOfMonth();
 
         // Ambil data attendance dan ubah key-nya jadi toDateString()
         $attendances = Attendance::where('user_id', $userId)
@@ -237,10 +257,41 @@ class AttendanceController extends Controller
             ];
         }
         // dd($daysInMonth);
-        $pdf = Pdf::loadView('attendances.pdf', compact('daysInMonth'));
+        $pdf = Pdf::loadView('attendances.pdf', compact('daysInMonth', 'user'));
         return $pdf->download('attendance-' . now()->format('Y-m') . '.pdf');
     }
+    public function create()
+    {
+        $users = User::all();
+        $attendanceLocations = AttendanceLocation::all();
+        return view('attendances.create', compact('users', 'attendanceLocations'));
+    }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'location_id' => 'required|exists:attendance_locations,id', // kalau ada tabel locations
+            'attendance_date' => 'required|date',
+            'check_in_time' => 'nullable|date_format:H:i',
+            'check_out_time' => 'nullable|date_format:H:i|after:check_in_time',
+            'status' => 'required|string|in:present,absent', // sesuaikan enum/status yang kamu pake
+            'remarks' => 'nullable|string|max:255',
+        ]);
+
+        Attendance::create([
+            'user_id'        => $request->user_id,
+            'location_id'    => $request->location_id,
+            'attendance_date'=> $request->attendance_date,
+            'check_in_time'  => $request->check_in_time,
+            'check_out_time' => $request->check_out_time,
+            'status'         => $request->status,
+            'remarks'        => $request->remarks,
+        ]);
+
+        return redirect()->route('attendances.index')
+            ->with('success', 'Attendance created successfully.');
+    }
 }
 // dd($daysInMonth);
 // // Load ke PDF view

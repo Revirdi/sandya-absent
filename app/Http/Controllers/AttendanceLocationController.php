@@ -12,6 +12,10 @@ class AttendanceLocationController extends Controller
         $locations = AttendanceLocation::all();
         return view('attendance_locations.index', compact('locations'));
     }
+    public function compareView()
+    {
+        return view('attendance_locations.compare');
+    }
 
     public function create()
     {

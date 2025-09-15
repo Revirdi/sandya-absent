@@ -1,7 +1,25 @@
 <x-app-layout>
 
-    <div class="flex justify-between mb-2">
-        <h1 class="text-2xl font-bold text-white">Attendances Users</h1>
+    <h1 class="text-2xl font-bold text-white mb-2">Attendances Users</h1>
+    <div class="flex justify-between">
+        <form method="GET" action="{{ route('attendances.index') }}" class="mb-4">
+            <input type="text" name="name" placeholder="Search by name" value="{{ request('name') }}"
+                class="border rounded p-2" />
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
+        </form>
+        <div class="flex justify-end mb-4">
+            <a href="{{ route('attendances.create') }}"
+                class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+                <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                        d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                Create Attendance
+            </a>
+        </div>
+
     </div>
     <div class="overflow-x-auto bg-gray-400 shadow rounded-lg">
         <table id="userAttendanceTable" class="min-w-full divide-y divide-gray-700">
@@ -49,14 +67,21 @@
                             $checkIn = $attendance->check_in_time;
                             $checkOut = $attendance->check_out_time;
 
-                            $workMinutes =
+                            $minutes =
                                 $checkIn && $checkOut
                                     ? \Carbon\Carbon::parse($checkIn)->diffInMinutes(\Carbon\Carbon::parse($checkOut))
                                     : null;
+
+                            $hours = $minutes !== null ? floor($minutes / 60) : null;
+                            $remainingMinutes = $minutes !== null ? $minutes % 60 : null;
                         @endphp
 
                         <td class="px-6 py-4 whitespace-nowrap text-xs md:text-sm lg:text-md text-gray-300">
-                            {{ $workMinutes !== null ? $workMinutes . ' minutes' : '-' }}
+                            @if ($minutes !== null)
+                                {{ $hours > 0 ? $hours . 'h ' : '' }}{{ $remainingMinutes }}m
+                            @else
+                                -
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xs md:text-sm lg:text-md">
                             {{ $attendance->status ?? '-' }}

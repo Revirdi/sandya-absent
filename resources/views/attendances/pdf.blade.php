@@ -27,7 +27,9 @@
 </head>
 
 <body>
-    <h2>Attendance Report - {{ now()->format('F Y') }}</h2>
+    <h2>Attendance Report</h2>
+    <p><strong>Name:</strong> {{ $user->name }}</p>
+    <p><strong>Month:</strong> {{ \Carbon\Carbon::parse($daysInMonth[0]['date'])->translatedFormat('F Y') }}</p>
 
     <table>
         <thead>

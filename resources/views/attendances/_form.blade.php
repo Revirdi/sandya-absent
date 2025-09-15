@@ -1,9 +1,3 @@
-{{-- <div>
-    <label for="attendance_date" class="block mb-2 text-sm font-medium $location">Name</label>
-    <input type="text" id="attendance_date" name="attendance_date" maxlength="50" required
-        value="{{ old('name', $attendance->name ?? '') }}"
-        class="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5">
-</div> --}}
 <div>
     <label for="attendance_date" class="block mb-2 text-sm font-medium">Date</label>
     <div class="relative">
