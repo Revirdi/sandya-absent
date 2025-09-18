@@ -123,7 +123,6 @@ class AttendanceLocationApiController extends Controller
 
         return $earthRadius * $c;
     }
-
     private function equirectangular($lat1, $lng1, $lat2, $lng2)
     {
     $earthRadius = 6371; // in kilometers

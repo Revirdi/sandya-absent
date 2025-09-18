@@ -4,7 +4,6 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLocationApiController;
 use App\Http\Controllers\AttendanceLocationController;
 use App\Http\Controllers\HolidayController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/checkin');
@@ -12,16 +11,6 @@ Route::redirect('/', '/checkin');
 Route::get('/checkin', [AttendanceController::class, 'showCheckin'])
     ->middleware('auth')
     ->name('checkin');
-
-// Route::get('/users', function () {
-//     return view('users');
-// })->middleware('auth')->name('dashboard');
-// ->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 use App\Http\Controllers\UserController;
 
@@ -41,19 +30,17 @@ Route::get('/attendance-locations/compare', [AttendanceLocationController::class
     ->name('attendance.locations.compare.view');
 Route::get('/api/locations', [AttendanceLocationApiController::class, 'getLocations']);
 Route::get('/api/compare', [AttendanceLocationApiController::class, 'compare'])->name('compare');
-// Butuh login aja
+
 Route::post('/api/attendance/checkin', [AttendanceController::class, 'checkIn'])
     ->middleware('auth');
 
 Route::post('/api/attendance/checkout', [AttendanceController::class, 'checkOut'])
     ->middleware('auth');
 
-// List absensi semua user → Hanya admin
 Route::get('/attendances', [AttendanceController::class, 'index'])
     ->middleware(['auth', 'role:admin'])
     ->name('attendances.index');
 
-// Riwayat absen user tertentu → hanya admin atau user sendiri
 Route::get('/attendances/user', [AttendanceController::class, 'userAttendance'])
     ->middleware('auth')
     ->name('attendances.user');
@@ -75,10 +62,10 @@ Route::get('/attendance/pdf', [AttendanceController::class, 'exportPdf'])->name(
 Route::get('/attendances/create', [AttendanceController::class, 'create'])
     ->middleware(['auth', 'role:admin'])
     ->name('attendances.create');
+
 Route::post('/attendances', [AttendanceController::class, 'store'])
     ->middleware(['auth', 'role:admin'])
     ->name('attendances.store');
 
-// });
 
 require __DIR__.'/auth.php';
