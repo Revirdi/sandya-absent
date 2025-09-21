@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLocationApiController;
 use App\Http\Controllers\AttendanceLocationController;
+use App\Http\Controllers\GlobalSettingController;
 use App\Http\Controllers\HolidayController;
 use Illuminate\Support\Facades\Route;
 
@@ -66,6 +67,9 @@ Route::get('/attendances/create', [AttendanceController::class, 'create'])
 Route::post('/attendances', [AttendanceController::class, 'store'])
     ->middleware(['auth', 'role:admin'])
     ->name('attendances.store');
+
+Route::resource('globals', GlobalSettingController::class)->except(['show']);
+Route::get('/api/globals/{name}', [GlobalSettingController::class, 'getByName'])->name('globals.getByName');
 
 
 require __DIR__.'/auth.php';

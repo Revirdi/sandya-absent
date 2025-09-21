@@ -44,10 +44,10 @@
                             {{ $attendance->location->location_name ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xs md:text-sm lg:text-md text-gray-300">
-                            {{ $attendance->check_in_time ?? '-' }}
+                            {{ optional($attendance)->check_in_time?->timezone('Asia/Jakarta')->format('H:i:s') ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xs md:text-sm lg:text-md text-gray-300">
-                            {{ $attendance->check_out_time ?? '-' }}
+                            {{ optional($attendance)->check_out_time?->timezone('Asia/Jakarta')->format('H:i:s') ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xs md:text-sm lg:text-md text-gray-300">
                             @if (isset($day['working_minutes']))

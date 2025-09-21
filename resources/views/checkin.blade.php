@@ -67,6 +67,8 @@
                 // Ambil lokasi dari backend
                 const res = await fetch(`/api/attendance-locations?lat=${userLat}&lng=${userLng}`);
                 const json = await res.json();
+                const resDistance = await fetch(`/api/globals/distances`)
+                const jsonDistance = await resDistance.json();
 
                 const lokasiList = json.data;
                 const lokasiTerdekat = json.nearest;
@@ -77,7 +79,7 @@
                         color: 'red',
                         fillColor: '#f03',
                         fillOpacity: 0.3,
-                        radius: 40000 // jarak meter
+                        radius: jsonDistance?.value || 4000 // jarak meter
                     }).addTo(map).bindPopup(`📍 ${loc.location_name}`);
                 });
 
@@ -99,7 +101,7 @@
                     // Tambah event tombol
                     document.getElementById("checkin-btn")?.addEventListener("click", async () => {
                         const distance = lokasiTerdekat.distance;
-                        if (distance > 40000) { //jarak km
+                        if (distance > jsonDistance?.value / 1000 || 4) { //jarak km
                             Swal.fire({
                                 title: 'Check-in failed',
                                 text: `You're too far away (${(distance).toFixed(2)} km) from the nearest office (${lokasiTerdekat.location_name}).`,
@@ -141,7 +143,7 @@
 
                     document.getElementById("checkout-btn")?.addEventListener("click", async () => {
                         const distance = lokasiTerdekat.distance;
-                        if (distance > 40) {
+                        if (distance > jsonDistance?.value / 1000 || 4) {
                             Swal.fire({
                                 title: 'Check-out failed',
                                 text: `You're too far away (${(distance).toFixed(2)} km) from the nearest office (${lokasiTerdekat.location_name}).`,

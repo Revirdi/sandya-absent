@@ -58,10 +58,10 @@
                             {{ $attendance->location->location_name ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xs md:text-sm lg:text-md text-gray-300">
-                            {{ $attendance->check_in_time ?? '-' }}
+                            {{ $attendance->check_in_time?->timezone('Asia/Jakarta')->format('H:i:s') ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xs md:text-sm lg:text-md text-gray-300">
-                            {{ $attendance->check_out_time ?? '-' }}
+                            {{ $attendance->check_out_time?->timezone('Asia/Jakarta')->format('H:i:s') ?? '-' }}
                         </td>
                         @php
                             $checkIn = $attendance->check_in_time;
