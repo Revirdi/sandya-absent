@@ -101,7 +101,8 @@
                     // Tambah event tombol
                     document.getElementById("checkin-btn")?.addEventListener("click", async () => {
                         const distance = lokasiTerdekat.distance;
-                        if (distance > jsonDistance?.value / 1000 || 4) { //jarak km
+                        if (distance > ((jsonDistance?.value ?? 4000) / 1000)) {
+                            console.log(distance > jsonDistance.value / 1000)
                             Swal.fire({
                                 title: 'Check-in failed',
                                 text: `You're too far away (${(distance).toFixed(2)} km) from the nearest office (${lokasiTerdekat.location_name}).`,
@@ -143,7 +144,7 @@
 
                     document.getElementById("checkout-btn")?.addEventListener("click", async () => {
                         const distance = lokasiTerdekat.distance;
-                        if (distance > jsonDistance?.value / 1000 || 4) {
+                        if (distance > ((jsonDistance?.value ?? 4000) / 1000)) {
                             Swal.fire({
                                 title: 'Check-out failed',
                                 text: `You're too far away (${(distance).toFixed(2)} km) from the nearest office (${lokasiTerdekat.location_name}).`,

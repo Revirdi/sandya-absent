@@ -13,8 +13,8 @@
     aria-label="Sidebar">
     <div class="h-full pt-5 overflow-y-auto bg-gray-900">
         <a href="#" class="flex items-center ps-2.5 mb-5">
-            <img src="https://flowbite.com/docs/images/logo.svg" class="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
-            <span class="self-center text-xl font-semibold whitespace-nowrap text-white">Sandya Network</span>
+            {{-- <img src="https://flowbite.com/docs/images/logo.svg" class="h-6 me-3 sm:h-7" alt="Flowbite Logo" /> --}}
+            <span class="self-center text-xl font-semibold whitespace-nowrap text-white">PACE</span>
         </a>
         <div class="flex flex-col h-[80svh]">
             <ul class="space-y-2 font-medium flex-grow">
