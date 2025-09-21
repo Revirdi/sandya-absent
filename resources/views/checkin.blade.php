@@ -131,7 +131,7 @@
                                 text: "Check-in success",
                                 icon: "success"
                             });
-                            window.location.reload
+                            window.location.reload()
                         } else {
                             Swal.fire({
                                 title: 'Check-in failed',
@@ -170,6 +170,7 @@
                                 text: "Check-out success",
                                 icon: "success"
                             });
+                            window.location.reload()
                         } else {
                             Swal.fire({
                                 title: 'Check-in failed',
