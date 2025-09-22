@@ -188,6 +188,11 @@
 
         }, err => {
             console.error(err.message)
+        },
+        {
+            enableHighAccuracy: true, // pakai GPS kalo ada
+            timeout: 10000, // maksimal 10 detik nunggu
+            maximumAge: 0   // jangan cache lokasi lama
         });
     </script>
 
